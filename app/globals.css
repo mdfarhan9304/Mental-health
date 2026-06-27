@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────
+   Design tokens (from the repo's extracted design system:
+   theme.css / variables.css / tokens.json). Exposed to Tailwind
+   v4 as utilities, e.g. bg-deep-teal, text-ink-navy,
+   font-display, font-sans, font-mono.
+   ───────────────────────────────────────────────────────────── */
+@theme {
+  /* Colors */
+  --color-deep-teal: #1c5d5f;
+  --color-pine-shadow: #0e4749;
+  --color-sage: #65b8a2;
+  --color-lake-teal: #2a7779;
+  --color-forest-floor: #156152;
+  --color-ink-navy: #16325a;
+  --color-dusty-rose: #d6aec1;
+  --color-mint-mist: #a2cbcd;
+  --color-sea-foam: #cae1e2;
+  --color-paper-white: #f2f8f7;
+  --color-card-mint: #e4f0f1;
+  --color-blush-sand: #f2e8e2;
+  --color-charcoal-navy: #283338;
+  --color-slate: #333333;
+  --color-soft-black: #1a1a1a;
+  --color-illustration-ink: #231e21;
+
+  /* Typography — next/font provides the *-src vars (see app/layout.tsx),
+     with graceful fallbacks if the web fonts fail to load. */
+  --font-display: var(--font-display-src), "P22 Mackinac Pro", Georgia,
+    "Times New Roman", serif;
+  --font-sans: var(--font-sans-src), "Sofia Pro", ui-sans-serif, system-ui,
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-mono-src), "IBM Plex Mono", ui-monospace,
+    SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Motion */
+  --animate-breathe: breathe 11s ease-in-out infinite;
+  --animate-fade-up: fade-up 0.5s ease both;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(0.72);
+    opacity: 0.65;
+  }
+  36.4% {
+    /* ~4s inhale */
+    transform: scale(1);
+    opacity: 1;
+  }
+  63.6% {
+    /* ~3s hold */
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+html,
+body {
+  background-color: var(--color-paper-white);
+  color: var(--color-charcoal-navy);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* thin, calm scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-mint-mist) transparent;
+}
