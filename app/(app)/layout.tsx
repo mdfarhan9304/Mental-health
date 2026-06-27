@@ -9,8 +9,14 @@ export default function AppLayout({
 }) {
   return (
     <>
+      <a href="#main" className="skip-link">
+        Skip to content
+      </a>
       <AppNav />
-      <main className="mx-auto w-full max-w-5xl px-4 pb-24 pt-6 sm:px-6">
+      <main
+        id="main"
+        className="mx-auto w-full max-w-5xl px-4 pb-24 pt-6 sm:px-6"
+      >
         <AuthGate>{children}</AuthGate>
       </main>
       <Disclaimer />

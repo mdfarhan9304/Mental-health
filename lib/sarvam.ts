@@ -1,9 +1,13 @@
 import "server-only";
+import { normalizeAudioType, ttsLang } from "./voice-utils";
 
 // Server-only Sarvam AI client (Indian-language voice layer).
 // STT = Saarika, TTS = Bulbul. The key never reaches the browser.
+// Pure helpers (ttsLang, normalizeAudioType) live in ./voice-utils for testing.
 
 const BASE = "https://api.sarvam.ai";
+
+export { ttsLang };
 
 function key(): string {
   const k = process.env.SARVAM_API_KEY;
@@ -24,18 +28,6 @@ export const SARVAM_SPEAKER = process.env.SARVAM_SPEAKER || "shruti";
 const SARVAM_PACE = Number(process.env.SARVAM_TTS_PACE || "0.9");
 const SARVAM_TEMPERATURE = Number(process.env.SARVAM_TTS_TEMPERATURE || "0.7");
 
-// Languages Bulbul (TTS) can speak. STT auto-detects far more.
-const TTS_LANGS = new Set([
-  "bn-IN", "en-IN", "gu-IN", "hi-IN", "kn-IN", "ml-IN",
-  "mr-IN", "od-IN", "pa-IN", "ta-IN", "te-IN",
-]);
-
-/** Normalise a detected language code to one Bulbul can speak (fallback en-IN). */
-export function ttsLang(code?: string | null): string {
-  if (code && TTS_LANGS.has(code)) return code;
-  return "en-IN";
-}
-
 export interface Transcription {
   transcript: string;
   languageCode: string | null;
@@ -43,20 +35,8 @@ export interface Transcription {
 
 /** Speech-to-text via Saarika. Accepts a Blob/File (webm/opus from the browser is fine). */
 export async function transcribe(audio: Blob): Promise<Transcription> {
-  // Sarvam validates the exact MIME type and rejects the ";codecs=opus" suffix
-  // that browser MediaRecorder adds (e.g. "audio/webm;codecs=opus"). Normalise
-  // to the bare type, which IS on its allowlist.
-  const baseType = (audio.type || "audio/webm").split(";")[0] || "audio/webm";
-  const ext = baseType.includes("mp4") || baseType.includes("m4a")
-    ? "m4a"
-    : baseType.includes("ogg")
-      ? "ogg"
-      : baseType.includes("wav") || baseType.includes("wave")
-        ? "wav"
-        : baseType.includes("mpeg") || baseType.includes("mp3")
-          ? "mp3"
-          : "webm";
-  const clean = new Blob([await audio.arrayBuffer()], { type: baseType });
+  const { mime, ext } = normalizeAudioType(audio.type);
+  const clean = new Blob([await audio.arrayBuffer()], { type: mime });
 
   const form = new FormData();
   form.append("file", clean, `audio.${ext}`);

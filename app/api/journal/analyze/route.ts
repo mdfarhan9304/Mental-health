@@ -3,6 +3,7 @@ import { getOpenAI, ANALYSIS_MODEL } from "@/lib/openai";
 import { JOURNAL_ANALYST_SYSTEM } from "@/lib/prompts";
 import { detectCrisis } from "@/lib/safety";
 import { LIMITS, validateText } from "@/lib/validation";
+import { rateLimit } from "@/lib/rateLimit";
 import type { Insight } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -31,6 +32,13 @@ const INSIGHT_SCHEMA = {
 
 export async function POST(req: NextRequest) {
   try {
+    const rl = rateLimit(req);
+    if (!rl.ok) {
+      return NextResponse.json(
+        { error: "Too many requests." },
+        { status: 429, headers: { "Retry-After": String(rl.retryAfter) } },
+      );
+    }
     const { text } = (await req.json()) as { text?: string };
     const checked = validateText(text, LIMITS.journalText, "Entry");
     if (!checked.ok) {

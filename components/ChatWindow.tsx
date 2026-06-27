@@ -284,6 +284,9 @@ export default function ChatWindow() {
 
       <div
         ref={scrollRef}
+        role="log"
+        aria-live="polite"
+        aria-label="Conversation with your companion"
         className="flex-1 space-y-3 overflow-y-auto rounded-2xl border border-mint-mist/70 bg-card-mint/50 p-4"
       >
         {ready && messages.length === 0 && !sending && (

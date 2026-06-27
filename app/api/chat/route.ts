@@ -3,6 +3,7 @@ import { getOpenAI, CHAT_MODEL } from "@/lib/openai";
 import { buildCompanionSystem } from "@/lib/prompts";
 import { detectCrisis } from "@/lib/safety";
 import { LIMITS, validateMessages, clampOptional } from "@/lib/validation";
+import { rateLimit } from "@/lib/rateLimit";
 import type { ChatMessage, MoodLog } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -19,6 +20,14 @@ interface ChatBody {
 
 export async function POST(req: NextRequest) {
   try {
+    const rl = rateLimit(req);
+    if (!rl.ok) {
+      return new Response("Too many requests. Please slow down a moment.", {
+        status: 429,
+        headers: { "Retry-After": String(rl.retryAfter) },
+      });
+    }
+
     const { messages, recentMood, lang, companionId, completedTasks, openTasks } =
       (await req.json()) as ChatBody;
 
